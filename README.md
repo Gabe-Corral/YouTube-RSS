@@ -4,7 +4,7 @@
 
 A command line RSS feed for YouTube written in Python.
 
-**SetUp:**
+**Setup:**
 
 Requires Python3
 
