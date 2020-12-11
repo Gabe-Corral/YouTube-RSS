@@ -1,4 +1,6 @@
-import feedparser, os, webbrowser, curses
+import feedparser
+import webbrowser
+import curses
 
 class RssFeed:
 
@@ -67,7 +69,8 @@ class RssFeed:
             elif key == curses.KEY_ENTER or key in [10, 13]:
                 self.showChannel(stdscr)
                 self.main_loop = False
-
+            elif key == curses.KEY_LEFT:
+                break
             self.printFeeds(stdscr)
             stdscr.refresh()
 
@@ -121,7 +124,7 @@ class RssFeed:
         details = ['Title:', videoName, 'URL:',
         self.rssFeeds[self.current_row][key][videoName][1],
         'Author:', self.rssFeeds[self.current_row][key][videoName][3],
-        'Channel:', self.rssFeeds[self.current_row][key][videoName][4]
+        'Channel:', self.rssFeeds[self.current_row][key][videoName][4],
         ]
         h, w = stdscr.getmaxyx()
         for idx, i in enumerate(details):
