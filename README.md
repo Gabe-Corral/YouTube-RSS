@@ -19,3 +19,10 @@ You will need to add xml feeds to urls.txt. The urls should look something like 
 cd YouTube-RSS
 python3 main.py
 ```
+
+**Usage:**
+
+- Use up and down arrows to navigate
+- Use left arrow to go back
+- Use enter to select a channel/video
+- Press enter on a video to open the video in your browser
