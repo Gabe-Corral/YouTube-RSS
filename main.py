@@ -120,7 +120,6 @@ class RssFeed:
 
 
     def printVideoDetails(self, stdscr, videoName, key):
-        # self.rssFeeds[self.current_row][key][videoName][2]
         details = ['Title:', videoName, 'URL:',
         self.rssFeeds[self.current_row][key][videoName][1],
         'Author:', self.rssFeeds[self.current_row][key][videoName][3],
