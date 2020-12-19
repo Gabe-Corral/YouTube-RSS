@@ -1,6 +1,7 @@
 import feedparser
 import webbrowser
 import curses
+from downloader import Download
 
 class RssFeed:
 
@@ -14,6 +15,7 @@ class RssFeed:
         self.showVideo = False
         self.videoName = ""
         self.key = ""
+        self.startDowanloder = False
 
         with open('urls.txt', 'r') as urls:
             for line in urls:
@@ -69,6 +71,9 @@ class RssFeed:
             elif key == curses.KEY_ENTER or key in [10, 13]:
                 self.showChannel(stdscr)
                 self.main_loop = False
+            elif key == curses.KEY_RIGHT:
+                #self.main_loop = False
+                self.downloader(stdscr)
             elif key == curses.KEY_LEFT:
                 break
             self.printFeeds(stdscr)
@@ -120,17 +125,19 @@ class RssFeed:
 
 
     def printVideoDetails(self, stdscr, videoName, key):
-        # self.rssFeeds[self.current_row][key][videoName][2]
         details = ['Title:', videoName, 'URL:',
         self.rssFeeds[self.current_row][key][videoName][1],
         'Author:', self.rssFeeds[self.current_row][key][videoName][3],
         'Channel:', self.rssFeeds[self.current_row][key][videoName][4],
         ]
         h, w = stdscr.getmaxyx()
+        curses.init_pair(1, curses.COLOR_GREEN, -1)
         for idx, i in enumerate(details):
             x = w//2 - len(i)//2
             y = h//2 - len(details)//2 + idx
+            stdscr.attron(curses.color_pair(1))
             stdscr.addstr(y, x, i)
+            stdscr.attroff(curses.color_pair(1))
         stdscr.refresh()
 
 
@@ -148,8 +155,47 @@ class RssFeed:
             elif key == curses.KEY_LEFT:
                 self.second_loop = True
                 self.showChannel(stdscr)
+            elif key == curses.KEY_RIGHT:
+                Download.mp4Download(self.rssFeeds[self.current_row][self.key][self.videoName][1],
+                self.videoName)
+            elif key == curses.KEY_DOWN:
+                Download.mp3Download(self.rssFeeds[self.current_row][self.key][self.videoName][1],
+                self.videoName)
+                stdscr.clear()
             self.printVideoDetails(stdscr, self.videoName, self.key)
             stdscr.refresh()
+
+    def printDownloader(self, stdscr):
+        options = ["MP4 DOWNLOAD", "MP3 DOWNLOAD"]
+        h, w = stdscr.getmaxyx()
+        curses.init_pair(1, curses.COLOR_RED, -1)
+        for idx, i in enumerate(options):
+            x = w//2 - len(i)//2
+            y = h//2 - len(options)//2 + idx
+            stdscr.attron(curses.color_pair(1))
+            stdscr.addstr(y, x, i)
+            stdscr.attroff(curses.color_pair(1))
+        stdscr.refresh()
+
+    def downloader(self, stdscr):
+        main_loop = False
+        self.startDowanloder = True
+        index = 0
+
+        self.printDownloader(stdscr)
+        while self.startDowanloder:
+            key = stdscr.getch()
+            if key == curses.KEY_LEFT:
+                self.main_loop = True
+                self.startDowanloder = False
+                self.showChannel(stdscr)
+            elif key == curses.KEY_UP and index > 0:
+                print("something")
+            elif key == curses.KEY_DOWN and index < 1:
+                print("something")
+
+        self.printDownloader(stdscr)
+        stdscr.refresh()
 
 
 if __name__=='__main__':
