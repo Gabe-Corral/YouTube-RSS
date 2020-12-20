@@ -1,6 +1,7 @@
 import feedparser
 import webbrowser
 import curses
+from curses.textpad import Textbox, rectangle
 from downloader import Download
 
 class RssFeed:
@@ -16,6 +17,8 @@ class RssFeed:
         self.videoName = ""
         self.key = ""
         self.startDowanloder = False
+        self.index_download = 0
+        self.download_options = ["MP3 DOWNLOAD", "MP4 DOWNLOAD"]
 
         with open('urls.txt', 'r') as urls:
             for line in urls:
@@ -72,7 +75,6 @@ class RssFeed:
                 self.showChannel(stdscr)
                 self.main_loop = False
             elif key == curses.KEY_RIGHT:
-                #self.main_loop = False
                 self.downloader(stdscr)
             elif key == curses.KEY_LEFT:
                 break
@@ -106,7 +108,6 @@ class RssFeed:
         self.second_loop = True
         curses.curs_set(0)
         curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
-        current_row = 0
         self.printVideos(stdscr)
 
         while self.second_loop:
@@ -166,21 +167,22 @@ class RssFeed:
             stdscr.refresh()
 
     def printDownloader(self, stdscr):
-        options = ["MP4 DOWNLOAD", "MP3 DOWNLOAD"]
         h, w = stdscr.getmaxyx()
         curses.init_pair(1, curses.COLOR_RED, -1)
-        for idx, i in enumerate(options):
+        for idx, i in enumerate(self.download_options):
             x = w//2 - len(i)//2
-            y = h//2 - len(options)//2 + idx
-            stdscr.attron(curses.color_pair(1))
-            stdscr.addstr(y, x, i)
-            stdscr.attroff(curses.color_pair(1))
+            y = h//2 - len(self.download_options)//2 + idx
+            if idx == self.index_download:
+                stdscr.attron(curses.color_pair(1))
+                stdscr.addstr(y, x, i)
+                stdscr.attroff(curses.color_pair(1))
+            else:
+                stdscr.addstr(y, x, i)
         stdscr.refresh()
 
     def downloader(self, stdscr):
         main_loop = False
         self.startDowanloder = True
-        index = 0
 
         self.printDownloader(stdscr)
         while self.startDowanloder:
@@ -189,13 +191,29 @@ class RssFeed:
                 self.main_loop = True
                 self.startDowanloder = False
                 self.showChannel(stdscr)
-            elif key == curses.KEY_UP and index > 0:
-                print("something")
-            elif key == curses.KEY_DOWN and index < 1:
-                print("something")
+            elif key == curses.KEY_UP and self.index_download > 0:
+                self.index_download -= 1
+            elif key == curses.KEY_DOWN and self.index_download < 1:
+                self.index_download += 1
+            elif key == curses.KEY_ENTER or key in [10, 13]:
+                self.downloadMp4ByURL(stdscr, self.download_options[self.index_download])
 
-        self.printDownloader(stdscr)
+            self.printDownloader(stdscr)
+            stdscr.refresh()
+
+    def downloadMp4ByURL(self, stdscr, format):
+        stdscr.addstr(0, 0, "Enter YouTube URL: (hit Ctrl-G to download)")
+        editwin = curses.newwin(1,80, 2,1)
+        rectangle(stdscr, 1,0, 1+1+1, 1+80+1)
         stdscr.refresh()
+        box = Textbox(editwin)
+        box.edit()
+        url = box.gather()
+        if format == "MP3 DOWNLOAD":
+            Download.mp3Download(url, "test")
+        elif format == "MP4 DOWNLOAD":
+            Download.mp4Download(url, "test")
+
 
 
 if __name__=='__main__':
